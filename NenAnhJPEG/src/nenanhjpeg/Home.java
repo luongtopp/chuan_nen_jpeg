@@ -16,15 +16,13 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 
 public class Home extends javax.swing.JFrame {
 
-    /**
-     * Creates new form Home
-     */
-    private String selectedImagePath;
     private String outputFilePath;
     private int desiredWidth = 345;
+    private DecimalFormat decimalFormat = new DecimalFormat("#,###");
+
     private int desiredHeight = 200;
-    private BufferedImage bitmapImage = null;
     private JFileChooser browseImageFile = new JFileChooser("//Users//luongtopp//Desktop//");
+    private FileNameExtensionFilter fnef = new FileNameExtensionFilter("IMAGES", "png", "jpg", "jpeg", "bmp");
 
     public Home() {
         initComponents();
@@ -64,6 +62,9 @@ public class Home extends javax.swing.JFrame {
         btnChonAnh = new javax.swing.JButton();
         btnNen = new javax.swing.JButton();
         btnGiaiNen = new javax.swing.JButton();
+        sldHeSoNen = new javax.swing.JSlider();
+        lblHeSoNen = new javax.swing.JLabel();
+        jLabel2 = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -218,6 +219,7 @@ public class Home extends javax.swing.JFrame {
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 0;
+        gridBagConstraints.insets = new java.awt.Insets(12, 12, 12, 12);
         jPanel2.add(btnChonAnh, gridBagConstraints);
 
         btnNen.setText("Nén");
@@ -229,7 +231,9 @@ public class Home extends javax.swing.JFrame {
                 btnNenActionPerformed(evt);
             }
         });
-        jPanel2.add(btnNen, new java.awt.GridBagConstraints());
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.insets = new java.awt.Insets(12, 12, 12, 12);
+        jPanel2.add(btnNen, gridBagConstraints);
 
         btnGiaiNen.setText("Giải nén");
         btnGiaiNen.setMaximumSize(new java.awt.Dimension(104, 29));
@@ -240,7 +244,35 @@ public class Home extends javax.swing.JFrame {
                 btnGiaiNenActionPerformed(evt);
             }
         });
-        jPanel2.add(btnGiaiNen, new java.awt.GridBagConstraints());
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.insets = new java.awt.Insets(12, 12, 12, 12);
+        jPanel2.add(btnGiaiNen, gridBagConstraints);
+
+        sldHeSoNen.setValue(0);
+        sldHeSoNen.addChangeListener(new javax.swing.event.ChangeListener() {
+            public void stateChanged(javax.swing.event.ChangeEvent evt) {
+                sldHeSoNenStateChanged(evt);
+            }
+        });
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 4;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.insets = new java.awt.Insets(12, 12, 12, 12);
+        jPanel2.add(sldHeSoNen, gridBagConstraints);
+
+        lblHeSoNen.setText("0");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.ipadx = 20;
+        gridBagConstraints.ipady = 10;
+        gridBagConstraints.insets = new java.awt.Insets(12, 12, 12, 12);
+        jPanel2.add(lblHeSoNen, gridBagConstraints);
+
+        jLabel2.setText("Hệ số nén:");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 3;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.insets = new java.awt.Insets(12, 12, 12, 12);
+        jPanel2.add(jLabel2, gridBagConstraints);
 
         javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
         jPanel3.setLayout(jPanel3Layout);
@@ -292,123 +324,27 @@ public class Home extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void btnChonAnhActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnChonAnhActionPerformed
-
-        //Filter image extensions
-        FileNameExtensionFilter fnef = new FileNameExtensionFilter("IMAGES", "png", "jpg", "jpeg", "bmp");
-        browseImageFile.addChoosableFileFilter(fnef);
-        int showOpenDialogue = browseImageFile.showOpenDialog(null);
-
-        if (showOpenDialogue == JFileChooser.APPROVE_OPTION) {
-            btnNen.setEnabled(true);
-
-            File selectedImageFile = browseImageFile.getSelectedFile();
-            selectedImagePath = selectedImageFile.getAbsolutePath();
-            System.out.println("path ảnh gốc: " + selectedImagePath);
-
-            try {
-                bitmapImage = ImageIO.read(new File(selectedImagePath));
-
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            //Display image on jlable
-            ImageIcon ii = new ImageIcon(bitmapImage);
-
-            // Lấy kích thước hiện thời của ảnh
-            int imageWidth = ii.getIconWidth();
-            int imageHeight = ii.getIconHeight();
-            DecimalFormat decimalFormat = new DecimalFormat("#,###");
-            lblDoPhanGiai.setText("Độ phân giải: " + imageWidth + " x " + imageHeight);
-            String formatName;
-            try {
-                formatName = ImageIO.getImageReadersByFormatName(getFileExtension(selectedImageFile)).next().getFormatName();
-                lblDinhDang.setText("Định dạng: " + formatName);
-            } catch (IOException ex) {
-                Logger.getLogger(Home.class.getName()).log(Level.SEVERE, null, ex);
-            }
-            String formattedNumber = decimalFormat.format(selectedImageFile.length());
-            lblDungLuong.setText("Dung lượng: " + formattedNumber + " Bytes");
-            lblBitsMau.setText("Bit màu: " + bitmapImage.getColorModel().getPixelSize());
-
-            // Đặt kích thước muốn hiển thị của ảnh
-            // Đọc tấm ảnh bitmap vào BufferedImage
-            // Tính toán tỷ lệ để thay đổi kích thước của ảnh
-            double widthRatio = (double) desiredWidth / imageWidth;
-            double heightRatio = (double) desiredHeight / imageHeight;
-            double scaleFactor = Math.min(widthRatio, heightRatio);
-
-            // Thay đổi kích thước ảnh theo tỷ lệ
-            int scaledWidth = (int) (imageWidth * scaleFactor);
-            int scaledHeight = (int) (imageHeight * scaleFactor);
-            Image scaledImage = ii.getImage().getScaledInstance(scaledWidth, scaledHeight, Image.SCALE_SMOOTH);
-
-            // Tạo một ImageIcon mới từ ảnh đã thay đổi kích thước
-            ImageIcon scaledImageIcon = new ImageIcon(scaledImage);
-
-            // Đặt ảnh vào label
-            imgAnhGoc.setIcon(scaledImageIcon);
-
-            // Đặt kích thước cho label
-            imgAnhGoc.setPreferredSize(new Dimension(desiredWidth, desiredHeight));
-
-        }
-
-
+        chooseImage();
     }//GEN-LAST:event_btnChonAnhActionPerformed
 
     private void btnNenActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnNenActionPerformed
-
         compressImage();
-
     }//GEN-LAST:event_btnNenActionPerformed
 
     private void btnGiaiNenActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnGiaiNenActionPerformed
         decompressionImage();
-
     }//GEN-LAST:event_btnGiaiNenActionPerformed
 
-    /**
-     * @param args the command line arguments
-     */
-    public static void main(String args[]) {
-        /* Set the Nimbus look and feel */
-        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
-        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
-         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
-         */
-        try {
-            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
-                if ("Nimbus".equals(info.getName())) {
-                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
-                    break;
-                }
-            }
-        } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(Home.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(Home.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(Home.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(Home.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        }
-        //</editor-fold>
+    private void sldHeSoNenStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_sldHeSoNenStateChanged
+        lblHeSoNen.setText("" + sldHeSoNen.getValue());
+    }//GEN-LAST:event_sldHeSoNenStateChanged
 
-        /* Create and display the form */
+    public static void main(String args[]) {
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
                 new Home().setVisible(true);
             }
         });
-    }
-
-    private static String getFileExtension(File file) {
-        String fileName = file.getName();
-        int dotIndex = fileName.lastIndexOf(".");
-        if (dotIndex != -1 && dotIndex < fileName.length() - 1) {
-            return fileName.substring(dotIndex + 1);
-        }
-        return "";
     }
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnChonAnh;
@@ -417,6 +353,7 @@ public class Home extends javax.swing.JFrame {
     private javax.swing.JLabel imgAnhGiaiNen;
     private javax.swing.JLabel imgAnhGoc;
     private javax.swing.JLabel imgAnhNen;
+    private javax.swing.JLabel jLabel2;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel10;
     private javax.swing.JPanel jPanel11;
@@ -439,7 +376,62 @@ public class Home extends javax.swing.JFrame {
     private javax.swing.JLabel lblDungLuong;
     private javax.swing.JLabel lblDungLuong2;
     private javax.swing.JLabel lblDungLuong3;
+    private javax.swing.JLabel lblHeSoNen;
+    private javax.swing.JSlider sldHeSoNen;
     // End of variables declaration//GEN-END:variables
+
+    // Chọn ảnh
+    private void chooseImage() {
+        //Filter image extensions
+        browseImageFile.addChoosableFileFilter(fnef);
+        int showOpenDialogue = browseImageFile.showOpenDialog(this);
+        if (showOpenDialogue == JFileChooser.APPROVE_OPTION) {
+            File selectedImageFile = browseImageFile.getSelectedFile();
+            String selectedImagePath = selectedImageFile.getAbsolutePath();
+
+            System.out.println("path ảnh gốc: " + selectedImagePath);
+            try {
+                BufferedImage bitmapImage = ImageIO.read(new File(selectedImagePath));
+                ImageIcon imageIcon = new ImageIcon(bitmapImage);
+
+                // Lấy kích thước hiện thời của ảnh
+                int imageWidth = imageIcon.getIconWidth();
+                int imageHeight = imageIcon.getIconHeight();
+                
+                // Hiển thị các giá trị thuộc tính ảnh lên lable
+                lblDoPhanGiai.setText("Độ phân giải: " + imageWidth + " x " + imageHeight);
+                String formattedNumber = decimalFormat.format(selectedImageFile.length());
+                lblDungLuong.setText("Dung lượng: " + formattedNumber + " Bytes");
+                String formatName = ImageIO.getImageReadersByFormatName(getFileExtension(selectedImageFile)).next().getFormatName();
+                lblDinhDang.setText("Định dạng: " + formatName);
+                lblBitsMau.setText("Bit màu: " + bitmapImage.getColorModel().getPixelSize());
+
+                // Đặt kích thước muốn hiển thị của ảnh
+                // Đọc tấm ảnh bitmap vào BufferedImage
+                // Tính toán tỷ lệ để thay đổi kích thước của ảnh
+                double widthRatio = (double) desiredWidth / imageWidth;
+                double heightRatio = (double) desiredHeight / imageHeight;
+                double scaleFactor = Math.min(widthRatio, heightRatio);
+
+                // Thay đổi kích thước ảnh theo tỷ lệ
+                int scaledWidth = (int) (imageWidth * scaleFactor);
+                int scaledHeight = (int) (imageHeight * scaleFactor);
+                Image scaledImage = imageIcon.getImage().getScaledInstance(scaledWidth, scaledHeight, Image.SCALE_SMOOTH);
+
+                // Tạo một ImageIcon mới từ ảnh đã thay đổi kích thước
+                ImageIcon scaledImageIcon = new ImageIcon(scaledImage);
+
+                // Đặt ảnh vào label
+                imgAnhGoc.setIcon(scaledImageIcon);
+//
+//                // Đặt kích thước cho label
+//                imgAnhGoc.setPreferredSize(new Dimension(desiredWidth, desiredHeight));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+    }
 
     // Nén ảnh
     private void compressImage() {
@@ -451,6 +443,7 @@ public class Home extends javax.swing.JFrame {
             File inputFile = browseImageFile.getSelectedFile();
 
             try {
+                BufferedImage bitmapImage = bitmapImage = ImageIO.read(new File(selectedImagePath));
 
                 // Tạo tệp ảnh đầu ra với định dạng JPG
                 outputFilePath = inputFile.getAbsolutePath().replace(".bmp", ".jpg");
@@ -507,7 +500,7 @@ public class Home extends javax.swing.JFrame {
         browseImageFile.addChoosableFileFilter(fnef);
 
         int result = browseImageFile.showOpenDialog(this);
-        if (result == JFileChooser.APPROVE_OPTION ) {
+        if (result == JFileChooser.APPROVE_OPTION) {
             File selectedImageFile = browseImageFile.getSelectedFile();
             outputFilePath = selectedImageFile.getAbsolutePath();
             System.out.println(outputFilePath);
@@ -574,44 +567,13 @@ public class Home extends javax.swing.JFrame {
         }
     }
 
-//    void hienThiThongTin(File file, JLabel anh, JLabel doPhanGiai, JLabel dungLuong, JLabel dinhDang, JLabel bitMau, String filePath) {
-//        DecimalFormat decimalFormat = new DecimalFormat("#,###");
-//        ImageIcon imageIcon = new ImageIcon(filePath);
-//        int imageWidth = imageIcon.getIconWidth();
-//        int imageHeight = imageIcon.getIconHeight();
-//        // Đặt kích thước muốn hiển thị của ảnh
-//        int desiredWidth = 298;
-//        int desiredHeight = 187;
-//        // Đọc tấm ảnh bitmap vào BufferedImage
-//
-//        // Tính toán tỷ lệ để thay đổi kích thước của ảnh
-//        double widthRatio = (double) desiredWidth / imageWidth;
-//        double heightRatio = (double) desiredHeight / imageHeight;
-//        double scaleFactor = Math.min(widthRatio, heightRatio);
-//
-//        // Thay đổi kích thước ảnh theo tỷ lệ
-//        int scaledWidth = (int) (imageWidth * scaleFactor);
-//        int scaledHeight = (int) (imageHeight * scaleFactor);
-//        Image scaledImage = imageIcon.getImage().getScaledInstance(scaledWidth, scaledHeight, Image.SCALE_SMOOTH);
-//
-//        // Tạo một ImageIcon mới từ ảnh đã được chỉnh kích thước
-//        ImageIcon resizedIcon = new ImageIcon(scaledImage);
-//        anh.setIcon(resizedIcon);
-//        // Hiển thị thông tin về ảnh đã nén
-//        int compressedWidth = bitmapImage.getWidth();
-//        int compressedHeight = bitmapImage.getHeight();
-//        long compressedFileSize = file.length();
-//
-//        doPhanGiai.setText("Độ phân giải: " + compressedWidth + " x " + compressedHeight);
-//        String formatName;
-//        try {
-//            formatName = ImageIO.getImageReadersByFormatName(getFileExtension(file)).next().getFormatName();
-//            dinhDang.setText("Định dạng: " + formatName);
-//        } catch (IOException ex) {
-//            Logger.getLogger(Home.class.getName()).log(Level.SEVERE, null, ex);
-//        }
-//        String formattedNumber = decimalFormat.format(compressedFileSize);
-//        dungLuong.setText("Dung lượng: " + formattedNumber + " Bytes");
-//        bitMau.setText("Bit màu: " + bitmapImage.getColorModel().getPixelSize());
-//    }
+    // Tách ký tự
+    private static String getFileExtension(File file) {
+        String fileName = file.getName();
+        int dotIndex = fileName.lastIndexOf(".");
+        if (dotIndex != -1 && dotIndex < fileName.length() - 1) {
+            return fileName.substring(dotIndex + 1);
+        }
+        return "";
+    }
 }

@@ -4,11 +4,16 @@ import java.awt.Dimension;
 import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.DecimalFormat;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.imageio.IIOImage;
 import javax.imageio.ImageIO;
+import javax.imageio.ImageWriteParam;
+import javax.imageio.ImageWriter;
+import javax.imageio.stream.ImageOutputStream;
 import javax.swing.ImageIcon;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
@@ -16,10 +21,8 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 
 public class Home extends javax.swing.JFrame {
 
-    private String outputFilePath;
-    private int desiredWidth = 345;
     private DecimalFormat decimalFormat = new DecimalFormat("#,###");
-
+    private int desiredWidth = 345;
     private int desiredHeight = 200;
     private JFileChooser browseImageFile = new JFileChooser("//Users//luongtopp//Desktop//");
     private FileNameExtensionFilter fnef = new FileNameExtensionFilter("IMAGES", "png", "jpg", "jpeg", "bmp");
@@ -232,6 +235,8 @@ public class Home extends javax.swing.JFrame {
             }
         });
         gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 4;
+        gridBagConstraints.gridy = 0;
         gridBagConstraints.insets = new java.awt.Insets(12, 12, 12, 12);
         jPanel2.add(btnNen, gridBagConstraints);
 
@@ -245,6 +250,8 @@ public class Home extends javax.swing.JFrame {
             }
         });
         gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 5;
+        gridBagConstraints.gridy = 0;
         gridBagConstraints.insets = new java.awt.Insets(12, 12, 12, 12);
         jPanel2.add(btnGiaiNen, gridBagConstraints);
 
@@ -255,7 +262,7 @@ public class Home extends javax.swing.JFrame {
             }
         });
         gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 4;
+        gridBagConstraints.gridx = 2;
         gridBagConstraints.gridy = 0;
         gridBagConstraints.insets = new java.awt.Insets(12, 12, 12, 12);
         jPanel2.add(sldHeSoNen, gridBagConstraints);
@@ -269,7 +276,7 @@ public class Home extends javax.swing.JFrame {
 
         jLabel2.setText("Hệ số nén:");
         gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 3;
+        gridBagConstraints.gridx = 1;
         gridBagConstraints.gridy = 0;
         gridBagConstraints.insets = new java.awt.Insets(12, 12, 12, 12);
         jPanel2.add(jLabel2, gridBagConstraints);
@@ -386,10 +393,9 @@ public class Home extends javax.swing.JFrame {
         browseImageFile.addChoosableFileFilter(fnef);
         int showOpenDialogue = browseImageFile.showOpenDialog(this);
         if (showOpenDialogue == JFileChooser.APPROVE_OPTION) {
+            btnNen.setEnabled(true);
             File selectedImageFile = browseImageFile.getSelectedFile();
             String selectedImagePath = selectedImageFile.getAbsolutePath();
-
-            System.out.println("path ảnh gốc: " + selectedImagePath);
             try {
                 BufferedImage bitmapImage = ImageIO.read(new File(selectedImagePath));
                 ImageIcon imageIcon = new ImageIcon(bitmapImage);
@@ -397,7 +403,7 @@ public class Home extends javax.swing.JFrame {
                 // Lấy kích thước hiện thời của ảnh
                 int imageWidth = imageIcon.getIconWidth();
                 int imageHeight = imageIcon.getIconHeight();
-                
+
                 // Hiển thị các giá trị thuộc tính ảnh lên lable
                 lblDoPhanGiai.setText("Độ phân giải: " + imageWidth + " x " + imageHeight);
                 String formattedNumber = decimalFormat.format(selectedImageFile.length());
@@ -423,35 +429,46 @@ public class Home extends javax.swing.JFrame {
 
                 // Đặt ảnh vào label
                 imgAnhGoc.setIcon(scaledImageIcon);
-//
-//                // Đặt kích thước cho label
-//                imgAnhGoc.setPreferredSize(new Dimension(desiredWidth, desiredHeight));
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }
-
     }
 
     // Nén ảnh
     private void compressImage() {
-        // Chọn tệp ảnh BMP để nén
-        DecimalFormat decimalFormat = new DecimalFormat("#,###");
-
-        int result = browseImageFile.showOpenDialog(this);
-        if (result == JFileChooser.APPROVE_OPTION) {
+        JFileChooser fileChooser = new JFileChooser("//Users//luongtopp//Desktop//");
+        int returnValue = fileChooser.showSaveDialog(this);
+        if (browseImageFile.getSelectedFile() != null && returnValue == JFileChooser.APPROVE_OPTION) {
             File inputFile = browseImageFile.getSelectedFile();
+            File selectedFile = fileChooser.getSelectedFile();
 
             try {
-                BufferedImage bitmapImage = bitmapImage = ImageIO.read(new File(selectedImagePath));
+                BufferedImage bitmapImage = bitmapImage = ImageIO.read(inputFile);
 
                 // Tạo tệp ảnh đầu ra với định dạng JPG
-                outputFilePath = inputFile.getAbsolutePath().replace(".bmp", ".jpg");
-                File outputFile = new File(outputFilePath);
-                ImageIO.write(bitmapImage, "jpg", outputFile);
-                System.out.println("path nén ảnh: " + outputFilePath);
+                File outputFile = new File(selectedFile + ".jpg");
 
-                ImageIcon imageIcon = new ImageIcon(outputFilePath);
+                ImageWriter writer = ImageIO.getImageWritersByFormatName("jpeg").next();
+
+                // Tạo một ImageWriteParam để chỉ định chất lượng nén JPEG
+                ImageWriteParam param = writer.getDefaultWriteParam();
+                param.setCompressionMode(ImageWriteParam.MODE_EXPLICIT);
+                param.setCompressionQuality((float) (sldHeSoNen.getValue()) / 100f); // Adjust the quality as desired
+
+                // Create an ImageOutputStream to write the JPEG image to the output file
+                FileOutputStream output = new FileOutputStream(outputFile);
+                ImageOutputStream imageOutput = ImageIO.createImageOutputStream(output);
+
+                // Khởi tạo ImageWriter bằng ImageOutputStream và đặt tệp đầu ra                
+                writer.setOutput(imageOutput);
+                writer.write(null, new IIOImage(bitmapImage, null, null), param);
+
+                imageOutput.close();
+                output.close();
+
+                // Hiển thị hình ảnh lên lable
+                ImageIcon imageIcon = new ImageIcon(outputFile.getAbsolutePath());
                 int imageWidth = imageIcon.getIconWidth();
                 int imageHeight = imageIcon.getIconHeight();
 
@@ -484,7 +501,6 @@ public class Home extends javax.swing.JFrame {
                 String formattedNumber = decimalFormat.format(compressedFileSize);
                 lblDungLuong2.setText("Dung lượng: " + formattedNumber + " Bytes");
                 lblBitsMau2.setText("Bit màu: " + bitmapImage.getColorModel().getPixelSize());
-                btnNen.setEnabled(false);
 
             } catch (IOException ex) {
                 ex.printStackTrace();
@@ -495,50 +511,45 @@ public class Home extends javax.swing.JFrame {
     // Giải nén
     private void decompressionImage() {
         JFileChooser browseImageFile = new JFileChooser("//Users//luongtopp//Desktop//");
-        DecimalFormat decimalFormat = new DecimalFormat("#,###");
         FileNameExtensionFilter fnef = new FileNameExtensionFilter("IMAGES", "png", "jpg", "jpeg", "bmp");
         browseImageFile.addChoosableFileFilter(fnef);
 
         int result = browseImageFile.showOpenDialog(this);
         if (result == JFileChooser.APPROVE_OPTION) {
             File selectedImageFile = browseImageFile.getSelectedFile();
-            outputFilePath = selectedImageFile.getAbsolutePath();
-            System.out.println(outputFilePath);
+            String outputFilePath = selectedImageFile.getAbsolutePath();
             File inputFile = new File(outputFilePath);
             try {
-                // Specify the path to the JPEG image file
-                // Read the JPEG image
-                BufferedImage bufferedImageImage = ImageIO.read(inputFile);
 
-                // Specify the path to the output BMP file
+                BufferedImage compressedImage = ImageIO.read(inputFile);
                 outputFilePath = outputFilePath.replace(".jpg", ".bmp");
-                File outputFile = new File(outputFilePath);
+                // Tạo đối tượng BufferedImage mới để giải nén
+                BufferedImage decompressedImage = new BufferedImage(compressedImage.getWidth(), compressedImage.getHeight(), BufferedImage.TYPE_INT_RGB);
 
-                // Write the image as BMP to the output file
-                ImageIO.write(bufferedImageImage, "bmp", outputFile);
+                // Sao chép dữ liệu từ ảnh nén sang ảnh giải nén
+                decompressedImage.getGraphics().drawImage(compressedImage, 0, 0, null);
+
+                File outputFile = new File(outputFilePath);
+                ImageIO.write(decompressedImage, "bmp", outputFile);
 
                 // Hiển thị thông tin lên màn hình
-//                File selectedImageFile = new File(outputFilePath);
-                selectedImagePath = selectedImageFile.getAbsolutePath();
-                System.out.println("path giải nén: " + selectedImagePath);
+                System.out.println(outputFilePath);
+                File fileHienThi = new File(outputFilePath);
                 try {
-                    BufferedImage bitmapImage2 = ImageIO.read(new File(selectedImagePath));
-                    ImageIcon ii = new ImageIcon(bitmapImage2);
+                    BufferedImage bitmapImage2 = ImageIO.read(new File(outputFilePath));
+                    ImageIcon imageIcon = new ImageIcon(bitmapImage2);
 
                     // Lấy kích thước hiện thời của ảnh
-                    int imageWidth = ii.getIconWidth();
-                    int imageHeight = ii.getIconHeight();
+                    int imageWidth = imageIcon.getIconWidth();
+                    int imageHeight = imageIcon.getIconHeight();
 
                     lblDoPhanGiai3.setText("Độ phân giải: " + imageWidth + " x " + imageHeight);
-                    String formatName;
-                    try {
-                        formatName = ImageIO.getImageReadersByFormatName(getFileExtension(selectedImageFile)).next().getFormatName();
-                        lblDinhDang3.setText("Định dạng: " + formatName);
-                    } catch (IOException ex) {
-                        Logger.getLogger(Home.class.getName()).log(Level.SEVERE, null, ex);
-                    }
-                    String formattedNumber = decimalFormat.format(selectedImageFile.length());
+                    String formattedNumber = decimalFormat.format(fileHienThi.length());
                     lblDungLuong3.setText("Dung lượng: " + formattedNumber + " Bytes");
+                    String formatName;
+                    formatName = ImageIO.getImageReadersByFormatName(getFileExtension(outputFile)).next().getFormatName();
+                    lblDinhDang3.setText("Định dạng: " + formatName);
+
                     lblBitsMau3.setText("Bit màu: " + bitmapImage2.getColorModel().getPixelSize());
 
                     // Tính toán tỷ lệ để thay đổi kích thước của ảnh
@@ -549,7 +560,7 @@ public class Home extends javax.swing.JFrame {
                     // Thay đổi kích thước ảnh theo tỷ lệ
                     int scaledWidth = (int) (imageWidth * scaleFactor);
                     int scaledHeight = (int) (imageHeight * scaleFactor);
-                    Image scaledImage = ii.getImage().getScaledInstance(scaledWidth, scaledHeight, Image.SCALE_SMOOTH);
+                    Image scaledImage = imageIcon.getImage().getScaledInstance(scaledWidth, scaledHeight, Image.SCALE_SMOOTH);
 
                     // Tạo một ImageIcon mới từ ảnh đã thay đổi kích thước
                     ImageIcon scaledImageIcon = new ImageIcon(scaledImage);

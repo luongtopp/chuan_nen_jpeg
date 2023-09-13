@@ -11,6 +11,7 @@ import java.util.logging.Logger;
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 import javax.swing.JFileChooser;
+import javax.swing.JLabel;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
 public class Home extends javax.swing.JFrame {
@@ -20,6 +21,8 @@ public class Home extends javax.swing.JFrame {
      */
     private String selectedImagePath;
     private String outputFilePath;
+    private int desiredWidth = 345;
+    private int desiredHeight = 200;
     private BufferedImage bitmapImage = null;
     private JFileChooser browseImageFile = new JFileChooser("//Users//luongtopp//Desktop//");
 
@@ -107,7 +110,7 @@ public class Home extends javax.swing.JFrame {
                     .addComponent(lblDungLuong)
                     .addComponent(lblDinhDang)
                     .addComponent(lblBitsMau))
-                .addContainerGap(240, Short.MAX_VALUE))
+                .addContainerGap(281, Short.MAX_VALUE))
         );
         jPanel8Layout.setVerticalGroup(
             jPanel8Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -146,7 +149,7 @@ public class Home extends javax.swing.JFrame {
                     .addComponent(lblDungLuong2)
                     .addComponent(lblDinhDang2)
                     .addComponent(lblBitsMau2))
-                .addContainerGap(240, Short.MAX_VALUE))
+                .addContainerGap(281, Short.MAX_VALUE))
         );
         jPanel9Layout.setVerticalGroup(
             jPanel9Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -185,7 +188,7 @@ public class Home extends javax.swing.JFrame {
                     .addComponent(lblDungLuong3)
                     .addComponent(lblDinhDang3)
                     .addComponent(lblBitsMau3))
-                .addContainerGap(240, Short.MAX_VALUE))
+                .addContainerGap(281, Short.MAX_VALUE))
         );
         jPanel11Layout.setVerticalGroup(
             jPanel11Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -206,6 +209,7 @@ public class Home extends javax.swing.JFrame {
         jPanel2.setLayout(new java.awt.GridBagLayout());
 
         btnChonAnh.setText("Chọn ảnh");
+        btnChonAnh.setPreferredSize(new java.awt.Dimension(104, 29));
         btnChonAnh.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btnChonAnhActionPerformed(evt);
@@ -244,7 +248,7 @@ public class Home extends javax.swing.JFrame {
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel3Layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, 1028, Short.MAX_VALUE)
+                .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, 1151, Short.MAX_VALUE)
                 .addContainerGap())
             .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                 .addGroup(jPanel3Layout.createSequentialGroup()
@@ -280,7 +284,7 @@ public class Home extends javax.swing.JFrame {
             .addGroup(layout.createSequentialGroup()
                 .addGap(0, 0, 0)
                 .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap())
+                .addContainerGap(45, Short.MAX_VALUE))
         );
 
         pack();
@@ -299,6 +303,8 @@ public class Home extends javax.swing.JFrame {
 
             File selectedImageFile = browseImageFile.getSelectedFile();
             selectedImagePath = selectedImageFile.getAbsolutePath();
+            System.out.println("path ảnh gốc: " + selectedImagePath);
+
             try {
                 bitmapImage = ImageIO.read(new File(selectedImagePath));
 
@@ -325,10 +331,7 @@ public class Home extends javax.swing.JFrame {
             lblBitsMau.setText("Bit màu: " + bitmapImage.getColorModel().getPixelSize());
 
             // Đặt kích thước muốn hiển thị của ảnh
-            int desiredWidth = 298;
-            int desiredHeight = 187;
             // Đọc tấm ảnh bitmap vào BufferedImage
-
             // Tính toán tỷ lệ để thay đổi kích thước của ảnh
             double widthRatio = (double) desiredWidth / imageWidth;
             double heightRatio = (double) desiredHeight / imageHeight;
@@ -453,14 +456,11 @@ public class Home extends javax.swing.JFrame {
                 outputFilePath = inputFile.getAbsolutePath().replace(".bmp", ".jpg");
                 File outputFile = new File(outputFilePath);
                 ImageIO.write(bitmapImage, "jpg", outputFile);
-                
+                System.out.println("path nén ảnh: " + outputFilePath);
+
                 ImageIcon imageIcon = new ImageIcon(outputFilePath);
                 int imageWidth = imageIcon.getIconWidth();
                 int imageHeight = imageIcon.getIconHeight();
-                // Đặt kích thước muốn hiển thị của ảnh
-                int desiredWidth = 298;
-                int desiredHeight = 187;
-                // Đọc tấm ảnh bitmap vào BufferedImage
 
                 // Tính toán tỷ lệ để thay đổi kích thước của ảnh
                 double widthRatio = (double) desiredWidth / imageWidth;
@@ -501,10 +501,16 @@ public class Home extends javax.swing.JFrame {
 
     // Giải nén
     private void decompressionImage() {
+        JFileChooser browseImageFile = new JFileChooser("//Users//luongtopp//Desktop//");
         DecimalFormat decimalFormat = new DecimalFormat("#,###");
+        FileNameExtensionFilter fnef = new FileNameExtensionFilter("IMAGES", "png", "jpg", "jpeg", "bmp");
+        browseImageFile.addChoosableFileFilter(fnef);
 
         int result = browseImageFile.showOpenDialog(this);
-        if (result == JFileChooser.APPROVE_OPTION && outputFilePath != null) {
+        if (result == JFileChooser.APPROVE_OPTION ) {
+            File selectedImageFile = browseImageFile.getSelectedFile();
+            outputFilePath = selectedImageFile.getAbsolutePath();
+            System.out.println(outputFilePath);
             File inputFile = new File(outputFilePath);
             try {
                 // Specify the path to the JPEG image file
@@ -519,8 +525,9 @@ public class Home extends javax.swing.JFrame {
                 ImageIO.write(bufferedImageImage, "bmp", outputFile);
 
                 // Hiển thị thông tin lên màn hình
-                File selectedImageFile = new File(outputFilePath);
+//                File selectedImageFile = new File(outputFilePath);
                 selectedImagePath = selectedImageFile.getAbsolutePath();
+                System.out.println("path giải nén: " + selectedImagePath);
                 try {
                     BufferedImage bitmapImage2 = ImageIO.read(new File(selectedImagePath));
                     ImageIcon ii = new ImageIcon(bitmapImage2);
@@ -540,11 +547,6 @@ public class Home extends javax.swing.JFrame {
                     String formattedNumber = decimalFormat.format(selectedImageFile.length());
                     lblDungLuong3.setText("Dung lượng: " + formattedNumber + " Bytes");
                     lblBitsMau3.setText("Bit màu: " + bitmapImage2.getColorModel().getPixelSize());
-
-                    // Đặt kích thước muốn hiển thị của ảnh
-                    int desiredWidth = 298;
-                    int desiredHeight = 187;
-                    // Đọc tấm ảnh bitmap vào BufferedImage
 
                     // Tính toán tỷ lệ để thay đổi kích thước của ảnh
                     double widthRatio = (double) desiredWidth / imageWidth;
@@ -572,4 +574,44 @@ public class Home extends javax.swing.JFrame {
         }
     }
 
+//    void hienThiThongTin(File file, JLabel anh, JLabel doPhanGiai, JLabel dungLuong, JLabel dinhDang, JLabel bitMau, String filePath) {
+//        DecimalFormat decimalFormat = new DecimalFormat("#,###");
+//        ImageIcon imageIcon = new ImageIcon(filePath);
+//        int imageWidth = imageIcon.getIconWidth();
+//        int imageHeight = imageIcon.getIconHeight();
+//        // Đặt kích thước muốn hiển thị của ảnh
+//        int desiredWidth = 298;
+//        int desiredHeight = 187;
+//        // Đọc tấm ảnh bitmap vào BufferedImage
+//
+//        // Tính toán tỷ lệ để thay đổi kích thước của ảnh
+//        double widthRatio = (double) desiredWidth / imageWidth;
+//        double heightRatio = (double) desiredHeight / imageHeight;
+//        double scaleFactor = Math.min(widthRatio, heightRatio);
+//
+//        // Thay đổi kích thước ảnh theo tỷ lệ
+//        int scaledWidth = (int) (imageWidth * scaleFactor);
+//        int scaledHeight = (int) (imageHeight * scaleFactor);
+//        Image scaledImage = imageIcon.getImage().getScaledInstance(scaledWidth, scaledHeight, Image.SCALE_SMOOTH);
+//
+//        // Tạo một ImageIcon mới từ ảnh đã được chỉnh kích thước
+//        ImageIcon resizedIcon = new ImageIcon(scaledImage);
+//        anh.setIcon(resizedIcon);
+//        // Hiển thị thông tin về ảnh đã nén
+//        int compressedWidth = bitmapImage.getWidth();
+//        int compressedHeight = bitmapImage.getHeight();
+//        long compressedFileSize = file.length();
+//
+//        doPhanGiai.setText("Độ phân giải: " + compressedWidth + " x " + compressedHeight);
+//        String formatName;
+//        try {
+//            formatName = ImageIO.getImageReadersByFormatName(getFileExtension(file)).next().getFormatName();
+//            dinhDang.setText("Định dạng: " + formatName);
+//        } catch (IOException ex) {
+//            Logger.getLogger(Home.class.getName()).log(Level.SEVERE, null, ex);
+//        }
+//        String formattedNumber = decimalFormat.format(compressedFileSize);
+//        dungLuong.setText("Dung lượng: " + formattedNumber + " Bytes");
+//        bitMau.setText("Bit màu: " + bitmapImage.getColorModel().getPixelSize());
+//    }
 }

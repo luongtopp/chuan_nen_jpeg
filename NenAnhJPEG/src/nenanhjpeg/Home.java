@@ -213,7 +213,6 @@ public class Home extends javax.swing.JFrame {
         jPanel2.setLayout(new java.awt.GridBagLayout());
 
         btnChonAnh.setText("Chọn ảnh");
-        btnChonAnh.setPreferredSize(new java.awt.Dimension(104, 29));
         btnChonAnh.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btnChonAnhActionPerformed(evt);
@@ -225,7 +224,7 @@ public class Home extends javax.swing.JFrame {
         gridBagConstraints.insets = new java.awt.Insets(12, 12, 12, 12);
         jPanel2.add(btnChonAnh, gridBagConstraints);
 
-        btnNen.setText("Nén");
+        btnNen.setText("Nén lossy");
         btnNen.setMaximumSize(new java.awt.Dimension(104, 29));
         btnNen.setMinimumSize(new java.awt.Dimension(104, 29));
         btnNen.setPreferredSize(new java.awt.Dimension(104, 29));
@@ -250,7 +249,7 @@ public class Home extends javax.swing.JFrame {
             }
         });
         gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 5;
+        gridBagConstraints.gridx = 6;
         gridBagConstraints.gridy = 0;
         gridBagConstraints.insets = new java.awt.Insets(12, 12, 12, 12);
         jPanel2.add(btnGiaiNen, gridBagConstraints);
@@ -323,7 +322,7 @@ public class Home extends javax.swing.JFrame {
             .addGroup(layout.createSequentialGroup()
                 .addGap(0, 0, 0)
                 .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(45, Short.MAX_VALUE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         pack();
@@ -410,7 +409,7 @@ public class Home extends javax.swing.JFrame {
                 lblDungLuong.setText("Dung lượng: " + formattedNumber + " Bytes");
                 String formatName = ImageIO.getImageReadersByFormatName(getFileExtension(selectedImageFile)).next().getFormatName();
                 lblDinhDang.setText("Định dạng: " + formatName);
-                lblBitsMau.setText("Bit màu: " + bitmapImage.getColorModel().getPixelSize());
+                lblBitsMau.setText("Bits màu: " + bitmapImage.getColorModel().getPixelSize());
 
                 // Đặt kích thước muốn hiển thị của ảnh
                 // Đọc tấm ảnh bitmap vào BufferedImage
@@ -444,7 +443,7 @@ public class Home extends javax.swing.JFrame {
             File selectedFile = fileChooser.getSelectedFile();
 
             try {
-                BufferedImage bitmapImage = bitmapImage = ImageIO.read(inputFile);
+                BufferedImage bitmapImage = ImageIO.read(inputFile);
 
                 // Tạo tệp ảnh đầu ra với định dạng JPG
                 File outputFile = new File(selectedFile + ".jpg");
@@ -500,7 +499,7 @@ public class Home extends javax.swing.JFrame {
                 }
                 String formattedNumber = decimalFormat.format(compressedFileSize);
                 lblDungLuong2.setText("Dung lượng: " + formattedNumber + " Bytes");
-                lblBitsMau2.setText("Bit màu: " + bitmapImage.getColorModel().getPixelSize());
+                lblBitsMau2.setText("Bits màu: " + bitmapImage.getColorModel().getPixelSize());
 
             } catch (IOException ex) {
                 ex.printStackTrace();
@@ -550,7 +549,7 @@ public class Home extends javax.swing.JFrame {
                     formatName = ImageIO.getImageReadersByFormatName(getFileExtension(outputFile)).next().getFormatName();
                     lblDinhDang3.setText("Định dạng: " + formatName);
 
-                    lblBitsMau3.setText("Bit màu: " + bitmapImage2.getColorModel().getPixelSize());
+                    lblBitsMau3.setText("Bits màu: " + bitmapImage2.getColorModel().getPixelSize());
 
                     // Tính toán tỷ lệ để thay đổi kích thước của ảnh
                     double widthRatio = (double) desiredWidth / imageWidth;
